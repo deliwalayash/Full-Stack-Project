@@ -1,27 +1,29 @@
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
 
-const View = () => {
+import { toast, ToastContainer } from 'react-toastify'
 
-    const [students,setStudents]=useState([])
-
-    const getStudents =async()=>{
-        const res= await axios.get('http://localhost:4000/api/view')
-        setStudents(res.data.data)
-        console.log(students)
-    }
+const View = ({students,getStudents,setStudent,setEditingId}) => {
 
     const handleDelete = async(id)=>{
-        await axios.delete(`http://loalhost:4000/api/delete/${id}`)
+      try{
+        await axios.delete(`http://localhost:4000/api/delete/${id}`)
+      }
+      catch(err){
+        console.log(err)
+
+      }
+        toast.success("data deleted succesfully")
         getStudents()
     }
+    const handleEdit = (student)=>{
+      setStudent(student)
+      setEditingId(student._id)
 
-    useEffect(()=>{
-        getStudents()
-    },[])
+    }
 
   return (
     <div className='container mt-4'>
+     
 
       <table className="table table-bordered">
         <thead>
@@ -46,6 +48,8 @@ const View = () => {
                     onClick={() => handleDelete(student._id)}
                   >
                     Delete
+                  </button>
+                  <button className='btn btn-warning' onClick={()=>{handleEdit(student)}}>Edit
                   </button>
                 </td>
               </tr>

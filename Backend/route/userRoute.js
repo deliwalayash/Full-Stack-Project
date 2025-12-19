@@ -5,8 +5,6 @@ const User=require('../model/user')
 
 console.log(User)
 
-
-
 route.post('/create',async(req,res)=>{
 
     const {name ,email,course}=req.body
@@ -43,13 +41,6 @@ route.get('/view',async(req,res)=>{
    try{
 
      const details=await User.find()
-
-    if(details.length == 0){
-        return res.status(500).json({
-            success:false,
-            message:"NO user Found"
-        })
-    }
 
     res.status(200).json({
         success:true,
@@ -90,8 +81,6 @@ route.delete('/delete/:id',async(req,res)=>{
         })
 
 
-
-
     }
     catch(err){
         return res.status(500).json({
@@ -103,44 +92,49 @@ route.delete('/delete/:id',async(req,res)=>{
 })
 
 route.put('/update/:id',async(req,res)=>{
-
     const {id}=req.params
 
     const {name,email,course}=req.body
 
-  try{
-    const founduser=await User.findById(id)
-
-    if(!founduser){
-        return res.status(404).json({
+    if(!name || !email || !course){
+        return res.status(400).json({
             success:false,
-            message:"No user found"
+            message:"All field are required"
         })
     }
 
-    const upDateUser=await User.findByIdAndUpdate(
-        id,
-        {name,email,course},
-        {new:true}
+    try{
+        const foundUser=await User.findById(id)
+        if(!foundUser){
+            return res.status(400).json({
+                success:false,
+                message:"User Not found",
+                
+            })
+        }
 
-    )
+        const upDateUser=await User.findByIdAndUpdate(
+            id,
+            {name,email,course},
+            {new:true}
+        )
 
-    return res.status(200).json({
-        success:true,
-        message:"User Updated",
-        data:upDateUser
-    })
-
-
-  }catch(err){
-    return res.status(500).json({
-        success:false,
-        message:err.message
-    })
-
-  }
-
+        return res.status(200).json({
+            success:true,
+            message:"User updated successfully",
+            data:upDateUser
+        })    
     
+    }   
+
+    catch(err){
+        return res.status(500).json({
+            success:false,
+            message:err.message
+        })
+
+
+    }
 })
 
 module.exports = route

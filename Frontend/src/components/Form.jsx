@@ -1,16 +1,10 @@
 import axios from 'axios'
 import React from 'react'
 import { useState } from 'react'
+import Button from '@mui/material/Button'
+import  {ToastContainer,toast} from 'react-toastify'
 
-const Form = () => {
-
-  const [student,setStudent]=useState({
-    name:"",
-    email:"",
-    course:""
-  })
-
-  
+const Form = ({student,setStudent,getStudents,editingId,setEditingId}) => {
 
   const handleChange = (e)=>{
     setStudent((prev)=>{
@@ -21,19 +15,38 @@ const Form = () => {
   const handleSubmit = async(e)=>{
     e.preventDefault()
 
-    const res=await axios.post("http://localhost:4000/api/create",student)
-    console.log(res.data)
+    try{
+      if(editingId){
+        await axios.put(`http://localhost:4000/api/update/${editingId}`,student)
+        toast.success("user Updated Successfully")
+      }
+      else{
+        await axios.post("http://localhost:4000/api/create",student)
+        // console.log(res.data)
+        toast.success("user created succesfully")
+      }
+
+    }catch(err){
+
+      toast.error(err.response.data.message)
+      console.log(err.response.data.message)
+    }
+
+
+    getStudents()
     setStudent({
       name:"",
       email:"",
       course:""
     })
+    setEditingId(null)
 
 
 
   }
   return (
     <div className='container w-25 mt-4'>
+      <ToastContainer></ToastContainer>
 <form onSubmit={handleSubmit}>
   <div className="mb-3">
     <label htmlFor="name" className="form-label">Name</label>
@@ -51,10 +64,8 @@ const Form = () => {
       <option value="fsd">AI / ML</option>
     </select>
   </div>
-  <button type="submit" className="btn btn-primary">Submit</button>
+  <Button type="submit"  variant="contained">Submit</Button>
 </form>
-
-      
     </div>
   )
 }
